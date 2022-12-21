@@ -2,11 +2,11 @@ package data
 
 import (
 	"context"
-	"crypto/rand"
 	"crypto/sha256"
 	"database/sql"
 	"encoding/base32"
 	"errors"
+	"math/rand"
 	"net/http"
 	"strings"
 	"time"
@@ -343,9 +343,13 @@ func (t *Token) GenerateToken(userID int, ttl time.Duration) (*Token, error) {
 		UserID: userID,
 		Expiry: time.Now().Add(ttl),
 	}
-
+	const letterBytes = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
 	// creating token
+
 	randomBytes := make([]byte, 16)
+	for i := range randomBytes {
+		randomBytes[i] = letterBytes[rand.Int63()%int64(len(letterBytes))]
+	}
 	_, err := rand.Read(randomBytes)
 	if err != nil {
 		return nil, err
