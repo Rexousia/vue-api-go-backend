@@ -7,6 +7,7 @@ import (
 type jsonRespone struct {
 	Error   bool   `json:"error"`
 	Message string `json:"message"`
+	Data    any    `json:"data"`
 }
 
 func (app *application) Login(w http.ResponseWriter, r *http.Request) {

@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"vue-api/internal/data"
 	"vue-api/internal/driver"
 )
 
@@ -20,7 +21,8 @@ type application struct {
 	config   config
 	infoLog  *log.Logger
 	errorLog *log.Logger
-	db       *driver.DB
+	//importing custom Models package inside of ../../internal/data/models.go
+	models data.Models
 }
 
 // main is the main point of entry for our application
@@ -31,17 +33,21 @@ func main() {
 	infoLog := log.New(os.Stdout, "INFO\t", log.Ldate|log.Ltime)
 	errorLog := log.New(os.Stdout, "ERROR\t", log.Ldate|log.Ltime|log.Lshortfile)
 
-	dsn := "host=localhost port=5432 user=postgres password=password dbname=vueapi timezone=UTC connect_timeout=5"
+	//specifying dsn at runtime
+	// host=localhost port=5432 user=postgres password=password sslmode=disabled dbname=vueapi timezone=UTC connect_timeout=5
+	dsn := os.Getenv("DSN")
 	db, err := driver.ConnectPosgres(dsn)
 	if err != nil {
 		log.Fatal("Cannot connect to database")
 	}
+	defer db.SQL.Close()
 
 	app := &application{
 		config:   cfg,
 		infoLog:  infoLog,
 		errorLog: errorLog,
-		db:       db,
+		//Using fucntion inside of data folder
+		models: data.New(db.SQL),
 	}
 	err = app.serve()
 	if err != nil {
