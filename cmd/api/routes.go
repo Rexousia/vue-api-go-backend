@@ -81,6 +81,10 @@ func (app *application) routes() http.Handler {
 	})
 
 	mux.Get("/test-save-token", func(w http.ResponseWriter, r *http.Request) {
+		// app.models.Token.GenerateToken(2, 60*time.Minute) wont work because
+		// User.Token is necessary because it calls the GenerateToken method on the Token struct,
+		// which is a field of the User struct. The Token struct has a method called GenerateToken
+		// that generates a token for the specified user ID and time to live duration.
 		token, err := app.models.User.Token.GenerateToken(2, 60*time.Minute)
 		if err != nil {
 			app.errorLog.Println(err)
@@ -91,7 +95,7 @@ func (app *application) routes() http.Handler {
 			app.errorLog.Println(err)
 			return
 		}
-
+		//setting
 		token.UserID = user.ID
 		token.CreatedAt = time.Now()
 		token.UpdatedAt = time.Now()
